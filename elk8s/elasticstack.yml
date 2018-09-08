@@ -11,9 +11,12 @@ items:
       appName: "elasticstack"
       app: "elasticsearch"
     ports:
+    # Probably better to use a named port if elasticsearch is configured
+    #  non-standard
     - protocol: TCP
       port: 9292
-      targetPort: 9200
+      targetPort: es-rest
+      #targetPort: 9200
 #- apiVersion: v1
 #  kind: Service
 #  # Not needed because there is only one elasticsearch node in this config
