@@ -1,0 +1,4 @@
+Add a configMap that overrides server.properties
+Assign the named service based on the value within the configMap
+Add templating to this entire process
+Build a deployment pipeline with shell scripts and ansible
