@@ -1,3 +1,0 @@
-# Can't agree to this for you
-#eula=true
-
