@@ -30,6 +30,14 @@ appConfig:
   resourcePackSha1: ""
   resourcePack: ""
 
+storage:
+  logs:
+    claimType: 'emptyDir'
+    claimName: '{}'
+  world:
+    claimType: 'emptyDir'
+    claimName: '{}'
+
 ingress:
   enabled: false
   annotations: {}

@@ -24,28 +24,24 @@ spec:
         heritage: {{ .Release.Service }}
     spec:
       containers:
-      #- command: ["cp", "/opt/server.properties", "/app/server.properties", "&&", "java", "-jar", "/app/server.jar", "nogui"]
-      - command: ["java", "-jar", "/app/server.jar", "nogui"]
+      - name: {{ .Chart.Name }}
+        command: ["java", "-jar", "/app/server.jar", "nogui"]
         image: {{ .Values.image.repository }}:{{ .Values.image.tag }}
         imagePullPolicy: {{ .Values.image.pullPolicy }}
-        name: {{ .Chart.Name }}
         ports:
         - containerPort: 25565
           name: minecraft-svc
         volumeMounts:
-        #- name: app-dir
-        #  mountPath: /app
-        #  readOnly: false
         - name: log-dir
           mountPath: /app/logs
           readOnly: false
         - name : world-dir
           mountPath: /app/world
           readOnly: false
-        #- name: server-config
-        #  mountPath: /opt/server.properties
-        #  readOnly: true
-        #  subPath: server-properties
+        - name: server-config
+          mountPath: /opt/server.properties
+          readOnly: true
+          subPath: server-properties
         # Liveness/Readiness based on serving port
         readinessProbe:
           tcpSocket:
@@ -64,14 +60,12 @@ spec:
           successThreshold: 1
           failureThreshold: 2
       volumes:
-      - name: app-dir
-        emptyDir: {}
-        #medium: Memory
+      # One day, I will have RamDisks, not today, though
       - name: log-dir
-        emptyDir: {}
+        {{ .Values.storage.logs.claimType }}: {{ .Values.storage.logs.claimName }}
       - name: world-dir
-        emptyDir: {}
+        {{ .Values.storage.world.claimType }}: {{ .Values.storage.world.claimName }}
         #  medium: "Memory"
-      #- name: server-config
-      #  configMap:
-      #    name: {{ .Release.Name }}-config
+      - name: server-config
+        configMap:
+          name: {{ .Release.Name }}-config
