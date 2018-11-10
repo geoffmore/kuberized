@@ -1,0 +1,71 @@
+kind: PersistentVolume
+apiVersion: v1
+metadata:
+  name: data
+spec:
+  capacity:
+    storage: 10Gi
+  accessModes:
+    - ReadWriteOnce
+  hostPath:
+    # The host path needs to be defined to n-1 directories
+    path: "/mnt/k8s/nextcloud"
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: nextcloud-aio
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: nextcloud-aio
+  template:
+    metadata:
+      labels:
+        app: nextcloud-aio
+    spec:
+      containers:
+      - name: nextcloud
+        image: nextcloud
+        ports:
+        - containerPort: 80
+        volumeMounts:
+        - name: data # Static name for data backend
+          mountPath: /var/www/html/data
+      volumes:
+      - name: data
+        #emptyDir: {}
+        persistentVolumeClaim:
+          claimName: nextcloud-data
+# Deployment takes around 2m, account for this in liveliness/health
+# There is no persistence between deployments the default for nextcloud
+# Actually, there is a persistence of data, but not database
+# container is create new, not reuse
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: nextcloud-data
+# var www html data
+# occ command for health-check?
+spec:
+  storageClassName: ""
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 10Gi
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: nextcloud
+spec:
+  selector:
+    app: nextcloud-aio
+  ports:
+  - protocol: TCP
+    port: 80
+    targetPort: 80
+  type: NodePort
