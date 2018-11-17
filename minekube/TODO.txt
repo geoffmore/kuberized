@@ -1,2 +1,0 @@
-Add a configMap that overrides server.properties
-Assign the named service based on the value within the configMap

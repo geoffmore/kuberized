@@ -1,6 +1,7 @@
 # Shoutout to jmainguy for helping me determine application behaviour
 FROM registry.hub.docker.com/library/ubuntu:18.04
 WORKDIR /app
+COPY entrypoint.sh /app/
 
 # Install Required Packages for Bedrock Server
 RUN apt-get update -y && apt-get install -y \
@@ -22,4 +23,4 @@ RUN apt-get -y remove\
 
 ENV LD_LIBRARY_PATH="."
 EXPOSE 19132/udp 19133/udp
-ENTRYPOINT [ "./bedrock_server" ]
+ENTRYPOINT [ "./entrypoint.sh" ]
