@@ -1,0 +1,103 @@
+apiVersion: v1
+items:
+# Not exposing the v6 svc because ipv6 is hard
+- apiVersion: v1
+  kind: Service
+  metadata:
+    name: "minecraft-v4"
+  spec:
+    selector:
+      app: "minecraft"
+      edition: "bedrock"
+    ports:
+    - protocol: UDP
+      port: 19132
+      targetPort: minecraft-v4
+    type: NodePort
+- apiVersion: apps/v1
+  kind: Deployment
+  metadata:
+    labels:
+      app: "minecraft"
+      edition: "bedrock"
+    name: "minecraft-bedrock"
+  spec:
+    replicas: 1
+    selector:
+      matchLabels:
+        app: "minecraft"
+        edition: "bedrock"
+    template:
+      metadata:
+        labels:
+          app: "minecraft"
+          edition: "bedrock"
+      spec:
+        containers:
+        - name: "minecraft"
+          # Change the image to your repository path, or build your own
+          image: minecraft-bedrock:1.7.0.13
+          imagePullPolicy: IfNotPresent
+          # Minecraft wants to write to it's config file, so yeah...
+          #command: [ "./entrypoint.sh" ]
+          stdin: true
+          tty: true
+          ports:
+          - name: minecraft-v4
+            containerPort: 19132
+            protocol: UDP
+          - name: mc-v6-svc
+            containerPort: 19133
+            protocol: UDP
+          volumeMounts:
+          - name: world-data
+            mountPath: /app/worlds
+          - name: log-data
+            mountPath: /app/log
+          - name: config-data
+            mountPath: /app/init
+            readOnly: true
+          # Behaviour and Resource mounts aren't playing well with the app
+          #- name: behavior-pack-data
+          #  mountPath: /app/behavior_packs
+          #- name: resource-pack-data
+          #  mountPath: /app/resource_packs
+        volumes:
+        # EmptyDirs for world/log
+        - name: world-data
+          emptyDir: {}
+        - name: log-data
+          emptyDir: {}
+        # PVCs for world/log
+        #- name: world-data
+        #  persistentVolumeClaim:
+        #    claimName: yourWorldClaimHere
+        #- name: log-data
+        #  persistentVolumeClaim:
+        #    claimName: yourLogClaimHere
+        - name: behavior-pack-data
+          emptyDir: {}
+        - name: resource-pack-data
+          emptyDir: {}
+        - name: config-data
+          configMap:
+            name: bedrock-config
+        imagePullSecrets:
+        - name: yourRegistrySecretsHere
+        # Liveness/Readiness based on serving port
+        # Need to figure out UDP health checks. The java server has this already.
+        # Labels are messy, need to be cleaned a bit
+    strategy:
+      # I want this app to act on the same data, so I'm trying to architect a
+      # way to do this. Currently, my plan is to delete the deploy and recreate
+      # it pointing to the same data source. Maybe, I just have a separate pvc
+      # with a reclaim policy of Never or similar. That probably would live in
+      # it's own file just because. While I'm here, I should probably mention
+      # that I wanted to deploy this as a statefulSet. Now, I don't think that's
+      # the best idea. I'm pretty confident the app can't handle writes from
+      # multiple servers, and I'm not trying to corrupt my data.
+      type: "Recreate"
+kind: List
+metadata:
+  resourceVersion: ""
+  selfLink: ""
