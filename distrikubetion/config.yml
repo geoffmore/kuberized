@@ -1,0 +1,39 @@
+apiVersion: v1
+metadata:
+  name: "distribution-config"
+  namespace: "registry"
+data:
+  # https://docs.docker.com/registry/configuration
+  config.yml: |-
+    # Version Section #
+    version: 0.1
+    # Log Section #
+    log:
+      accesslog:
+        disabled: true
+      level: debug
+      formatter: text
+    # Storage Section #
+    storage:
+      filesystem:
+        rootdirectory: /var/lib/registry
+      delete:
+        enabled: false
+      maintenance:
+        uploadpurging:
+          enabled: yes
+          age: 168h
+          interval: 24h
+          dryrun: false
+        readonly:
+          enabled: true
+        delete:
+          enabled: true
+      redirect:
+        disable: false
+    # Http Section #
+    http:
+      addr: 0.0.0.0:5000
+      host: http://distribution.registry:5000
+      secret: "password"
+kind: ConfigMap
