@@ -7,9 +7,8 @@ items:
     name: "minecraft-v4"
   spec:
     selector:
-      appType: "hosted-games"
-      appName: "minecraft"
       app: "minecraft"
+      edition: "bedrock"
     ports:
     - protocol: UDP
       port: 19132
@@ -19,23 +18,20 @@ items:
   kind: Deployment
   metadata:
     labels:
-      appType: "hosted-games"
-      appName: "minecraft"
       app: "minecraft"
+      edition: "bedrock"
     name: "minecraft-bedrock"
   spec:
     replicas: 1
     selector:
       matchLabels:
-        appType: "hosted-games"
-        appName: "minecraft"
         app: "minecraft"
+        edition: "bedrock"
     template:
       metadata:
         labels:
-          appType: "hosted-games"
-          appName: "minecraft"
           app: "minecraft"
+          edition: "bedrock"
       spec:
         containers:
         - name: "minecraft"

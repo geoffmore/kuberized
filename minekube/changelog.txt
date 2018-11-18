@@ -1,3 +1,14 @@
+11/18/18
+Context behind this commit is getting Minecraft: Java Edition "Production Ready"
+Bedrock,Java: Cleaned up labels, app=minecraft,edition='bedrock'|'java'
+Java: Removed static server.properties from container build
+Java: Added default java opts to container build
+Java: Added a CM to control the initial server configuration and java opts.
+Java: Added volumeMounts for logs, worlds
+    * Defaults to emptyDirs
+Java: Added console port to Deployment in anticipation of future releases
+Java: Stubbed out additional java options in CM
+
 11/17/18
 Context behind this commit is getting Minecraft: Bedrock Edition "Production
 Ready".

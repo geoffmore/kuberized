@@ -11,5 +11,5 @@ RUN curl ${SERVER_JAR_URL} --output ${SERVER_JAR}
 FROM registry.hub.docker.com/library/openjdk:8u171-alpine3.8 as app
 WORKDIR /app
 COPY --from=build /build/* /app/
-EXPOSE 25565
-ENTRYPOINT [ "java", "-jar", "/app/server.jar", "nogui" ]
+EXPOSE 25565 25575
+ENTRYPOINT [ "entrypoint.sh" ]
