@@ -3,4 +3,4 @@ Kuberize: the configuration of an application such that it can be deployed in ku
 ## Repo Contents:
 * elk8s - Elastic Stack
 * minekube - Minecraft Bedrock and Java Editions
-* distrikubetion - Docker Distribution
+* distrikubetion - Docker Distribution to serve images to to the cluster
