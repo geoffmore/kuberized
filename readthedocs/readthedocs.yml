@@ -23,10 +23,24 @@ items:
           component: "web"
       spec:
         containers:
+        - name: "elasticsearch"
+          image: docker.elastic.co/elasticsearch/elasticsearch:6.5.1
+          imagePullPolicy: IfNotPresent
+          ports:
+          - name: elasticsearch
+            containerPort: 9200
+            protocol: TCP
         - name: "readthedocs"
           # Change the image to your repository path, or build your own
           command: ["./entrypoint.sh"]
-          image: readthedocs:0.2
+          env:
+          - name: ELASTICSEARCH_USER
+            value: "Doesn't matter yet"
+          - name: ELASTICSEARCH_PASSWORD
+            value: "Doesn't matter yet"
+          - name: ELASTICSEARCH_HOST
+            value: "Doesn't matter yet"
+          image: us.gcr.io/ephemeral-socks/readthedocs:0.2
           imagePullPolicy: Always
           ports:
           - name: readthedocs
