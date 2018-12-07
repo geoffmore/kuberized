@@ -1,7 +1,7 @@
 # A build container doesn't work here because the rtd container needs git
 FROM registry.hub.docker.com/library/ubuntu:18.04
 #COPY --from=build /build/readthedocs.org/ /app/readthedocs/
-RUN apt-get -y update && apt-get -y install \
+RUN apt-get -y update && apt-get --no-install-recommends -y install \
   build-essential \
   python-dev \
   python-pip \
@@ -11,8 +11,8 @@ RUN apt-get -y update && apt-get -y install \
   libxslt1-dev \
   zlib1g-dev \
   virtualenv \
-  git
-
+  git \
+&& apt-get clean && rm -rf /var/lib/apt/lists/*
 RUN git clone --progress https://github.com/rtfd/readthedocs.org.git /app/readthedocs
 WORKDIR /app/readthedocs
 COPY entrypoint.sh /app/readthedocs/entrypoint.sh

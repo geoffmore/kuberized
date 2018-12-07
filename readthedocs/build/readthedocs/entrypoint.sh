@@ -7,7 +7,6 @@
 
 python manage.py migrate
 python manage.py collectstatic
-
 python manage.py createsuperuser \
   --no-input \
   --username "user" \
@@ -19,9 +18,9 @@ python manage.py createsuperuser \
 # Give superuser password here
 # https://stackoverflow.com/questions/6358030/how-to-reset-django-admin-password
 
-
 if [ -n "${ELASTICSEACH_USER+x}" ] && [ -n "${ELASTICSEARCH_PASSWORD+x}" ] && [ -n "${ELASTICSEARCH_HOST+x}"]; then
     python manage.py provision_elasticsearch
+    python manage.py reindex_elasticsearch
 fi
 
 if [ -n "${POSTGRES_DB+x}" ] && [ -n "${POSTGRES_USER+x}" ] && [ -n "${POSTGRES_PASSWORD+x}" ] && [ -n "${POSTGRES_HOST+x}" ]; then
