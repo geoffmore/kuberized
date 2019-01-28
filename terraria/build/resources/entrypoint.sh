@@ -17,6 +17,10 @@ if [ ! -d "${WORLD_DIR}" ]; then
   mkdir "${WORLD_DIR}"
 fi
 
+if [ -d "${INIT_DIR}" ]; then
+  cp ${INIT_DIR}/${SERVER_CONFIG} ${SERVER_CONFIG}
+fi
+
 # func $1 $2 if ! -z $1, append $2$1 to a var
 if [ ! -z "${PLAYER_COUNT}" ]; then
   CLI_ARGS="${CLI_ARGS} -maxplayers ${PLAYER_COUNT}"
