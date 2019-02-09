@@ -4,3 +4,4 @@ Kuberize: the configuration of an application such that it can be deployed in ku
 * elk8s - the Elastic Stack
 * minekube - Minecraft Bedrock and Java Editions
 * nextkube - NextCloud
+* mediawiki - MediaWiki
