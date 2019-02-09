@@ -12,7 +12,7 @@ spec:
   selector:
     app: nextcloud
     component: web
-  type: NodePort
+  type: ClusterIP
 ---
 apiVersion: apps/v1
 kind: Deployment
@@ -35,36 +35,14 @@ spec:
     spec:
       containers:
       - name: nextcloud
-        image: nextcloud:14.0.3-apache
-        #  Nextcloud Stuff
-        env:
-        - name: NEXTCLOUD_ADMIN_USER
-          valueFrom: 
-            configMapKeyRef:
-              name: nextcloud-config
-              key: nextcloud_admin_user
-        - name: NEXTCLOUD_ADMIN_PASSWORD
-          valueFrom: 
-            secretKeyRef:
-              name: nextcloud-secret
-              key: nextcloud_admin_password
-        # Database Stuff
-        - name: SQLITE_DATABASE
-          valueFrom: 
-            configMapKeyRef:
-              name: nextcloud-config
-              key: db_name
-        # Either the service needs to be set to ingress, or the
-        # Pod should become aware of the node it's running on
-        # to avoid the trusted domain issue
-        # Add your own dns here
-        #- name: NEXTCLOUD_TRUSTED_DOMAINS
-          #value: "localhost nextcloud-app-svc"
+        image: nextcloud:14.0.7-apache
         volumeMounts:
-        - mountPath: /var/www/nextcloud/data
+        - mountPath: /var/www/html
           name: nextcloud-data
         ports:
         - containerPort: 80
       volumes:
       - name: nextcloud-data
-        emptyDir: {}
+        persistentVolumeClaim:
+          claimName: nextcloud-data
+        #emptyDir: {}
