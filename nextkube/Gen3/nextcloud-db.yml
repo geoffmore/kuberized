@@ -2,7 +2,7 @@ apiVersion: v1
 kind: Service
 # Headless services are needed for db discovery
 metadata:
-  name: nextcloud-db-svc
+  name: nextcloud-db
   labels:
     app: nextcloud
     component: database
@@ -37,7 +37,7 @@ spec:
       component: database
       database: mysql
       flavor: mariadb
-  serviceName: "nextcloud-db-svc"
+  serviceName: "nextcloud-db"
   template:
     metadata:
       labels:
@@ -48,7 +48,8 @@ spec:
     spec:
       containers:
       - name: mariadb
-        image: mariadb:10.3.8-bionic
+        image: mariadb:latest
+        #image: mariadb:10.3.8-bionic
         env:
         - name: MYSQL_DATABASE
           valueFrom: 
@@ -62,25 +63,31 @@ spec:
               key: db_user
         - name: MYSQL_ROOT_PASSWORD
           valueFrom: 
-            configMapKeyRef:
-              name: nextcloud-config
+            secretKeyRef:
+              name: db-secret
               key: db_password
         ports:
         - containerPort: 3306
           name: mysql
-        readinessProbe:
-          tcpSocket:
-            port: 3306
-          initialDelaySeconds: 5
-          periodSeconds: 10
-        livenessProbe:
-          tcpSocket:
-            port: 3306
-          initialDelaySeconds: 5
-          periodSeconds: 10
+        #readinessProbe:
+        #  tcpSocket:
+        #    port: 3306
+        #  initialDelaySeconds: 5
+        #  periodSeconds: 10
+        #livenessProbe:
+        #  tcpSocket:
+        #    port: 3306
+        #  initialDelaySeconds: 5
+        #  periodSeconds: 10
         volumeMounts:
         - mountPath: /var/lib/mysql
           name: mysql-data
-      volumes:
-      - name: mysql-data
-        emptyDir: {}
+  volumeClaimTemplates: 
+  - metadata:
+      name: mysql-data
+    spec:
+      accessModes: [ "ReadWriteOnce" ]
+      storageClassName: "cka0-nfs0"
+      resources:
+        requests:
+          storage: 5Gi
