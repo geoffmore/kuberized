@@ -1,0 +1,100 @@
+apiVersion: v1
+items:
+- apiVersion: v1
+  kind: Service
+  metadata:
+    name: "minecraft-external"
+  spec:
+    selector:
+      app: "minecraft"
+      edition: "java"
+    ports:
+    - protocol: TCP
+      port: 25565
+      targetPort: minecraft-svc
+    type: NodePort
+- apiVersion: apps/v1
+  kind: Deployment
+  metadata:
+    labels:
+      app: "minecraft"
+      edition: "java"
+    name: "minecraft-java"
+  spec:
+    replicas: 1
+    selector:
+      matchLabels:
+        app: "minecraft"
+        edition: "java"
+    template:
+      metadata:
+        labels:
+          app: "minecraft"
+          edition: "java"
+      spec:
+        containers:
+        - name: "minecraft"
+          image: minecraft-java:1.13.1
+          imagePullPolicy: IfNotPresent
+          stdin: true
+          tty: true
+          #command: ["./entrypoint.sh"]
+          ports:
+          - name: minecraft-svc
+            containerPort: 25565
+          - name: minecraft-comm
+            containerPort: 25575
+          # Liveness/Readiness based on serving port
+          volumeMounts:
+          - name: world-data
+            mountPath: /app/world # world stores data for world 'world' by default
+            # NOT the data for all worlds
+          - name: log-data
+            mountPath: /app/logs
+          - name: config-data
+            mountPath: /app/init
+            readOnly: true
+          readinessProbe:
+            tcpSocket:
+              port: minecraft-svc
+            initialDelaySeconds: 60
+            periodSeconds: 10
+            timeoutSeconds: 1
+            successThreshold: 1
+            failureThreshold: 6
+          livenessProbe:
+            tcpSocket:
+              port: minecraft-svc
+            initialDelaySeconds: 60
+            periodSeconds: 10
+            timeoutSeconds: 1
+            successThreshold: 1
+            failureThreshold: 2
+        volumes:
+        # EmptyDirs for world/log
+        - name: world-data
+          emptyDir: {}
+        - name: log-data
+          emptyDir: {}
+        # PVCs for world/log
+        #- name: world-data
+        #  persistentVolumeClaim:
+        #    claimName: yourWorldClaimHere
+        #- name: log-data
+        #  persistentVolumeClaim:
+        #    claimName: yourLogClaimHere
+        - name: config-data
+          configMap:
+            name: java-config
+            items:
+            - key: server.properties
+              path: server.properties
+        imagePullSecrets:
+        - name: yourRegistrySecretsHere
+        nodeSelector: {}
+    strategy:
+      type: "Recreate"
+kind: List
+metadata:
+  resourceVersion: ""
+  selfLink: ""

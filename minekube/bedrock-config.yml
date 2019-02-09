@@ -1,0 +1,23 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: "bedrock-config"
+data:
+  server.properties: |-
+    allow-cheats=false
+    default-player-permission-level=member
+    difficulty=hard
+    gamemode=survival
+    level-name=minekube
+    level-seed=
+    max-players=10
+    max-threads=0
+    online-mode=true
+    player-idle-timeout=30
+    server-name='MineKube: Bedrock Edition'
+    server-port=19132
+    server-portv6=19133
+    texturepack-required=false
+    tick-distance=4
+    view-distance=16
+    white-list=false
