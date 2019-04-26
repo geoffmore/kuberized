@@ -36,7 +36,7 @@ items:
         containers:
         - name: "minecraft"
           # Change the image to your repository path, or build your own
-          image: minecraft-bedrock:1.7.0.13
+          image: minecraft-bedrock:1.11.0.23
           imagePullPolicy: IfNotPresent
           # Minecraft wants to write to it's config file, so yeah...
           #command: [ "./entrypoint.sh" ]
