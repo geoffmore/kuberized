@@ -50,6 +50,12 @@ items:
                   key: password
           #command: [ "./entrypoint.sh" ]
           # ~ 750MiB idle mem
+          # As a result of informal tests against 3 clusters, I determined the
+          # following for terraria resource usage:
+          # idle mem is 775-975MB
+          # idle cpu is 50-300m
+          # there is a cpu spike of up to 1800m
+          # there is no memory spike
           stdin: true
           tty: true
           ports:
