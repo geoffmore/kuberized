@@ -13,6 +13,6 @@ COPY --from=build /opt/build/factorio /opt/factorio
 WORKDIR /opt/factorio
 COPY entrypoint.sh .
 RUN useradd factorio && chown -R factorio:factorio /opt/factorio
-EXPOSE 34197/tcp
+EXPOSE 34197/udp
 
 ENTRYPOINT ["/opt/factorio/entrypoint.sh"]

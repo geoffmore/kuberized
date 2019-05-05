@@ -8,8 +8,8 @@ items:
     selector:
       app: "factorio"
     ports:
-    - protocol: TCP
-      port: 
+    - protocol: UDP
+      port: 34197
       targetPort: factorio
     type: ClusterIP
 - apiVersion: apps/v1
@@ -38,7 +38,7 @@ items:
           ports:
           - name: factorio
             containerPort: 34197
-            protocol: TCP
+            protocol: UDP
           volumeMounts:
           - name: world-data
             mountPath: /opt/factorio/saves
@@ -48,8 +48,8 @@ items:
         #  persistentVolumeClaim:
         #    claimName: yourWorldClaimHere
           emptyDir: {}
-        imagePullSecrets:
-        - name: yourRegistrySecretsHere
+        #imagePullSecrets:
+        #- name: yourRegistrySecretsHere
     strategy:
       type: "Recreate"
 kind: List
