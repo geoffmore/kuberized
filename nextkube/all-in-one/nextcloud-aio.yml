@@ -41,8 +41,17 @@ spec:
           name: nextcloud-data
         ports:
         - containerPort: 80
+        env:
+        - name: NEXTCLOUD_ADMIN_USER
+          value: "nextcloud"
+        - name: NEXTCLOUD_ADMIN_PASSWORD
+          value: "nextnextnextcloudcloud"
+        - name: SQLITE_DATABASE
+          value: "db"
+        - name: NEXTCLOUD_TRUSTED_DOMAINS
+          value: "example.com"
       volumes:
       - name: nextcloud-data
-        persistentVolumeClaim:
-          claimName: nextcloud-data
-        #emptyDir: {}
+        #persistentVolumeClaim:
+        #  claimName: nextcloud-data
+        emptyDir: {}
