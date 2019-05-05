@@ -1,7 +1,7 @@
 #!/bin/sh
 
 WORLD_FILE="saves/world.zip"
-if [[ -r ${WORLD_FILE} && -w ${WORLD_FILE} ]]; then
+if [ -r ${WORLD_FILE} && -w ${WORLD_FILE} ]; then
   echo "World found"
 else
   echo "World is being created"
