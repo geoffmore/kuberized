@@ -1,0 +1,70 @@
+# Default values for minecraft-java.
+
+replicaCount: 1
+
+image:
+  repository: minecraft-java
+  tag: 1.13.1
+  pullPolicy: IfNotPresent
+
+nameOverride: ""
+fullnameOverride: ""
+
+service:
+  type: NodePort
+  port: 25565
+
+appConfig:
+  difficulty: 1
+  enableCommandBlock: false
+  gamemode: 0
+  hardcore: false
+  levelName: "world"
+  levelSeed: ""
+  levelType: "DEFAULT"
+  maxPlayers: 10
+  motd: "A MineKube: Java Edition Server"
+  onlineMode: true
+  playerIdleTimeout: 0
+  pvp: true
+  resourcePackSha1: ""
+  resourcePack: ""
+
+storage:
+  logs:
+    claimType: 'emptyDir'
+    claimName: '{}'
+  world:
+    claimType: 'emptyDir'
+    claimName: '{}'
+
+ingress:
+  enabled: false
+  annotations: {}
+    # kubernetes.io/ingress.class: nginx
+    # kubernetes.io/tls-acme: "true"
+  path: /
+  hosts:
+    - chart-example.local
+  tls: []
+  #  - secretName: chart-example-tls
+  #    hosts:
+  #      - chart-example.local
+
+resources: {}
+  # We usually recommend not to specify default resources and to leave this as a conscious
+  # choice for the user. This also increases chances charts run on environments with little
+  # resources, such as Minikube. If you do want to specify resources, uncomment the following
+  # lines, adjust them as necessary, and remove the curly braces after 'resources:'.
+  # limits:
+  #  cpu: 100m
+  #  memory: 128Mi
+  # requests:
+  #  cpu: 100m
+  #  memory: 128Mi
+
+nodeSelector: {}
+
+tolerations: []
+
+affinity: {}

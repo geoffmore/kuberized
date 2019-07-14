@@ -1,0 +1,77 @@
+---
+# tasks file for deploy
+- name: Generate Labels to Identify NextCloud Instance
+  set_fact:
+    nc_instance_id: "{{ lookup('password', '/dev/null chars=ascii_letters,digits length=6') }}"
+- name: Generate NextCloud Admin Secret
+  set_fact: 
+    nc_admin_pass: "{{ lookup('password', '/dev/null chars=ascii_letters,digits,hexdigits,punctuation length=15') | quote }}"
+- name: Generate NextCloud Database Secret
+  set_fact:
+    nc_db_pass: "{{ lookup('password', '/dev/null chars=ascii_letters,digits,hexdigits,punctuation length=15') | quote }}"
+- name: Generate NextCloud NameSpace Name from Instance Var
+  set_fact:
+    nc_namespace: "nextcloud-{{ nc_instance_id | lower }}"
+- name: Get the Current KubeConfig
+  set_fact:
+    kubeconfig: "{{ lookup('env', 'KUBECONFIG') }}"        
+
+- name: "Add NextCloud Namespace"
+  k8s:
+    kubeconfig: "{{ kubeconfig }}"
+    kind: Namespace
+    name: "{{ nc_namespace }}"
+    state: present
+    # Need to template this to get labels
+- name: Add Persistent Storage
+  k8s:
+    kubeconfig: "{{ kubeconfig }}"
+    definition: "{{ lookup('template', 'nextcloud-pvc.yml.j2') }}"
+    namespace: "{{ nc_namespace }}"
+    state: present
+- name: Add NextCloud Admin Secret
+  k8s:
+    kubeconfig: "{{ kubeconfig }}"
+    definition: "{{ lookup('template', 'nextcloud-web-secret.yml.j2') }}"
+    namespace: "{{ nc_namespace }}"
+    state: present
+- name: Add NextCloud DB Secret
+  k8s:
+    kubeconfig: "{{ kubeconfig }}"
+    definition: "{{ lookup('template', 'nextcloud-db-secret.yml.j2') }}"
+    namespace: "{{ nc_namespace }}"
+    state: present
+- name: Create NextCloud Instance
+  k8s:
+    kubeconfig: "{{ kubeconfig }}"
+    definition: "{{ lookup('template', 'nextcloud-aio.yml.j2') }}"
+    namespace: "{{ nc_namespace }}"
+    state: present
+- name: Create NextCloud Service
+  k8s:
+    kubeconfig: "{{ kubeconfig }}"
+    definition: "{{ lookup('template', 'nextcloud-svc.yml.j2') }}"
+    namespace: "{{ nc_namespace }}"
+    state: present
+  register: gen_svc_result
+  ignore_errors: true
+
+- name: "Create NextCloud Service (w/ default if above task failed)"
+  k8s:
+    kubeconfig: "{{ kubeconfig }}"
+    definition: "{{ lookup('template', 'nextcloud-svc.yml.j2') }}"
+    namespace: "{{ nc_namespace }}"
+    state: present
+  vars: 
+    nc_svc_type: "ClusterIP"
+  when: gen_svc_result is failed
+
+- name: "[INFO] Namespace"
+  debug:
+    msg: "Your namespace is: '{{ nc_namespace }}'"
+- name: "[INFO] NextCloud Web Password"
+  debug:
+    msg: "Retrieve your NextCloud web password by running the following command: kubectl -n {{ nc_namespace }} get secret nextcloud-web-secret -o jsonpath='{.data.password}' | base64 -d"
+- name: "[INFO] NextCloud Database Password"
+  debug:
+    msg: "Retrieve your NextCloud database password by running the following command: kubectl -n {{ nc_namespace }} get secret nextcloud-db-secret -o jsonpath='{.data.password}' | base64 -d"

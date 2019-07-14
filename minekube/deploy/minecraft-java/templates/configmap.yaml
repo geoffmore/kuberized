@@ -1,0 +1,44 @@
+apiVersion: v1
+metadata:
+  name: {{ .Release.Name }}-config
+data:
+  server-properties: |
+    {{ with .Values.appConfig }}# Configurable
+    difficulty={{ .difficulty }}
+    enable-command-block={{ .enableCommandBlock }}
+    gamemode={{ .gamemode }}
+    hardcore={{ .hardcore }}
+    level-name{{ .levelName }}
+    level-seed={{ .levelSeed }}
+    level-type={{ .levelType }}
+    max-players={{ .maxPlayers }}
+    motd={{ .motd }}
+    online-mode={{ .onlineMode }}
+    player-idle-timeout={{ .playerIdleTimeout }}
+    pvp={{ .pvp }}
+    resource-pack-sha1={{ .resourcePackSha1 }}
+    resource-pack={{ .resourcePack }}
+    {{ end }}#Removing spaces
+    # Static, because I thought it makes sense at the time
+    server-port=25565
+    allow-flight=false
+    allow-nether=true
+    enable-query=false
+    enable-rcon=false
+    force-gamemode=false
+    generate-structures=true
+    generator-settings=
+    max-build-height=256
+    max-tick-time=60000
+    max-world-size=29999984
+    network-compression-threshold=256
+    op-permission-level=4
+    prevent-proxy-connections=false
+    server-ip=
+    snooper-enabled=true
+    spawn-animals=true
+    spawn-monsters=true
+    spawn-npcs=true
+    view-distance=10
+    white-list=false
+kind: ConfigMap

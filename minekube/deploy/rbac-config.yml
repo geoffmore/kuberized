@@ -1,0 +1,76 @@
+# Basic tiller installation from website
+kind: Role
+apiVersion: rbac.authorization.k8s.io/v1beta1
+metadata:
+  name: tiller-manager
+  namespace: tiller-world
+rules:
+- apiGroups: ["", "batch", "extensions", "apps"]
+  resources: ["*"]
+  verbs: ["*"]
+---
+kind: ClusterRole
+apiVersion: rbac.authorization.k8s.io/v1beta1
+metadata:
+  name: tiller-ns
+rules:
+- apiGroups: ["", "batch", "extensions", "apps"]
+  resources: ["*"]
+  verbs: ["*"]
+---
+kind: RoleBinding
+apiVersion: rbac.authorization.k8s.io/v1beta1
+metadata:
+  name: tiller-binding
+  namespace: tiller-world
+subjects:
+- kind: ServiceAccount
+  name: tiller
+  namespace: tiller-world
+roleRef:
+  kind: Role
+  name: tiller-manager
+  apiGroup: rbac.authorization.k8s.io
+---
+kind: RoleBinding
+apiVersion: rbac.authorization.k8s.io/v1beta1
+metadata:
+  name: tiller-ns1
+  namespace: mc-tilla
+subjects:
+- kind: ServiceAccount
+  name: tiller
+  namespace: tiller-world
+roleRef:
+  kind: ClusterRole
+  name: tiller-ns
+  apiGroup: rbac.authorization.k8s.io
+---
+kind: RoleBinding
+apiVersion: rbac.authorization.k8s.io/v1beta1
+metadata:
+  name: tiller-ns2
+  namespace: yournshere
+subjects:
+- kind: ServiceAccount
+  name: tiller
+  namespace: tiller-world
+roleRef:
+  kind: ClusterRole
+  name: tiller-ns
+  apiGroup: rbac.authorization.k8s.io
+---
+kind: RoleBinding
+apiVersion: rbac.authorization.k8s.io/v1beta1
+metadata:
+  name: tiller-ns3
+  namespace: getityetquestion
+subjects:
+- kind: ServiceAccount
+  name: tiller
+  namespace: tiller-world
+roleRef:
+  kind: ClusterRole
+  name: tiller-ns
+  apiGroup: rbac.authorization.k8s.io
+
