@@ -5,4 +5,5 @@ Kuberize: the configuration of an application such that it can be deployed in ku
 * mediawiki - MediaWiki
 * minekube - Minecraft Bedrock and Java Editions
 * nextkube - NextCloud
+* readthedocs (unfinished) - ReadTheDocs
 * terraria - Terraria
