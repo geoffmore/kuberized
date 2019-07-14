@@ -4,7 +4,7 @@ Kuberize: the configuration of an application such that it can be deployed in ku
 * distrikubetion (unfinished) - Docker Distribution to serve images to to the cluster
 * factorio - factorio
 * kubepress (unfinished) - WordPress
-* mediawiki - MediaWiki
+* mediawiki (unfinished) - MediaWiki
 * minekube - Minecraft Bedrock and Java Editions
 * nextkube - NextCloud
 * readthedocs (unfinished) - ReadTheDocs
