@@ -1,0 +1,20 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: nextcloud-app-svc
+  labels:
+    app: nextcloud
+    component: web
+    ncInstanceID: "{{ nc_instance_id }}"
+spec:
+  ports:
+  - port: 80
+    targetPort: 80
+    name: nc-http
+  - port: 443
+    targetPort: 443
+    name: nc-https
+  selector:
+    app: nextcloud
+    component: web
+  type: "{{ nc_svc_type }}"

@@ -1,19 +1,3 @@
-apiVersion: v1
-kind: Service
-metadata:
-  name: nextcloud-app-svc
-  labels:
-    app: nextcloud
-    component: web
-spec:
-  ports:
-  - port: 80
-    targetPort: 80
-  selector:
-    app: nextcloud
-    component: web
-  type: ClusterIP
----
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -21,40 +5,44 @@ metadata:
   labels:
     app: nextcloud
     component: web
+    ncInstanceID: "{{ nc_instance_id }}"
 spec:
   replicas: 1
   selector:
     matchLabels:
       app: nextcloud
       component: web
+      ncInstanceID: "{{ nc_instance_id }}"
   template:
     metadata:
       labels:
         app: nextcloud
         component: web
+        ncInstanceID: "{{ nc_instance_id }}"
     spec:
       containers:
       - name: nextcloud
-        image: registry.hub.docker.com/library/nextcloud:14.0.7-apache
+        image: nextcloud:14.0.7-apache
         volumeMounts:
         - mountPath: /var/www/html
           name: nextcloud-data
         ports:
         - containerPort: 80
+          name: nc-http
+        - containerPort: 443
+          name: nc-https
         env:
         - name: NEXTCLOUD_ADMIN_USER
-          value: "nextcloud"
+          value: "{{ nc_user | default('nextcloud') }}"
         - name: NEXTCLOUD_ADMIN_PASSWORD
-          value: "nextnextnextcloudcloud"
+          valueFrom:
+            secretKeyRef:
+              name: nextcloud-web-secret
+              key: password
         - name: SQLITE_DATABASE
           value: "db"
         - name: NEXTCLOUD_TRUSTED_DOMAINS
-          value: "example.com"
-      volumes:
-      - name: nextcloud-data
-        #persistentVolumeClaim:
-        #  claimName: nextcloud-data
-        emptyDir: {}
+          value: "{{ nc_trusted_domains }}"
       volumes:
       - name: nextcloud-data
         persistentVolumeClaim:
