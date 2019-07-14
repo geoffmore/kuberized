@@ -1,0 +1,53 @@
+apiVersion: v1
+items:
+- apiVersion: v1
+  kind: Service
+  metadata:
+    name: "wordpress-ext"
+  spec:
+    selector:
+      appType: "blogging"
+      appName: "wordpress"
+      appFunc: "web"
+    ports:
+    - protocol: TCP
+      port: 80
+      targetPort: 80
+    type: NodePort
+- apiVersion: apps/v1
+  # Monolith deployment. Will be split in future releases
+  kind: Deployment
+  metadata:
+    labels:
+      appType: "blogging"
+      appName: "wordpress"
+      appFunc: "web"
+      app: "wordpress"
+    name: "wordpress"
+  spec:
+    replicas: 1
+    selector:
+      matchLabels:
+        appType: "blogging"
+        appName: "wordpress"
+        appFunc: "web"
+        name: "wordpress"
+    template:
+      metadata:
+        labels:
+          appType: "blogging"
+          appName: "wordpress"
+          appFunc: "web"
+          name: "wordpress"
+      spec:
+        containers:
+        - name: "wordpress"
+          image: registry.hub.docker.com/library/wordpress:4.9.8-php7.1-fpm-alpine
+          imagePullPolicy: IfNotPresent
+          ports:
+          - containerPort: 80
+        restartPolicy: Always
+kind: List
+metadata:
+  resourceVersion: ""
+  selfLink: ""
