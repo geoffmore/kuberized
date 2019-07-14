@@ -1,0 +1,65 @@
+apiVersion: v1
+items:
+#- apiVersion: v1
+#  kind: Service
+- apiVersion: apps/v1
+  kind: Deployment
+  metadata:
+    labels:
+      app: "readthedocs"
+      component: "web"
+    name: "readthedocs"
+  spec:
+    # https://docs.readthedocs.io/en/latest/settings.html
+    replicas: 1
+    selector:
+      matchLabels:
+        app: "readthedocs"
+        component: "web"
+    template:
+      metadata:
+        labels:
+          app: "readthedocs"
+          component: "web"
+      spec:
+        containers:
+        - name: "elasticsearch"
+          image: docker.elastic.co/elasticsearch/elasticsearch:6.5.1
+          imagePullPolicy: IfNotPresent
+          ports:
+          - name: elasticsearch
+            containerPort: 9200
+            protocol: TCP
+        - name: "readthedocs"
+          # Change the image to your repository path, or build your own
+          command: ["./entrypoint.sh"]
+          env:
+          - name: ELASTICSEARCH_USER
+            value: "Doesn't matter yet"
+          - name: ELASTICSEARCH_PASSWORD
+            value: "Doesn't matter yet"
+          - name: ELASTICSEARCH_HOST
+            value: "Doesn't matter yet"
+          image: us.gcr.io/ephemeral-socks/readthedocs:0.2
+          imagePullPolicy: Always
+          ports:
+          - name: readthedocs
+            containerPort: 8000
+            protocol: TCP
+          #volumeMounts:
+          # If I use a volumeMount, the existing data is overwritten. How do I
+          # ensure that the data gets to my volume  before the pod is started?
+          # What does best practise dictate I should do?
+          #- name: data
+          #  mountPath: /app/readthedocs
+        #volumes:
+        #- name: data
+        #  emptyDir: {}
+        #imagePullSecrets:
+        #- name: yourSecretsHere
+    strategy:
+      type: "RollingUpdate"
+kind: List
+metadata:
+  resourceVersion: ""
+  selfLink: ""

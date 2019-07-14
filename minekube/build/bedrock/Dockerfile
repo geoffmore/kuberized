@@ -11,7 +11,7 @@ RUN apt-get update -y && apt-get install -y \
   libc6
 
 # Download Bedrock Edition Server
-ARG SERVER_ZIP_URL=https://minecraft.azureedge.net/bin-linux/bedrock-server-1.7.0.13.zip
+ARG SERVER_ZIP_URL=https://minecraft.azureedge.net/bin-linux/bedrock-server-1.11.0.23.zip
 ARG SERVER_ZIP=server.zip
 RUN curl ${SERVER_ZIP_URL} --output ${SERVER_ZIP} && unzip ${SERVER_ZIP} && rm ${SERVER_ZIP}
 

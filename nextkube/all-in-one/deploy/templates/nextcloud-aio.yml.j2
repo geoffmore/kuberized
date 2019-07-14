@@ -1,0 +1,50 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: nextcloud-app
+  labels:
+    app: nextcloud
+    component: web
+    ncInstanceID: "{{ nc_instance_id }}"
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: nextcloud
+      component: web
+      ncInstanceID: "{{ nc_instance_id }}"
+  template:
+    metadata:
+      labels:
+        app: nextcloud
+        component: web
+        ncInstanceID: "{{ nc_instance_id }}"
+    spec:
+      containers:
+      - name: nextcloud
+        image: nextcloud:14.0.7-apache
+        volumeMounts:
+        - mountPath: /var/www/html
+          name: nextcloud-data
+        ports:
+        - containerPort: 80
+          name: nc-http
+        - containerPort: 443
+          name: nc-https
+        env:
+        - name: NEXTCLOUD_ADMIN_USER
+          value: "{{ nc_user | default('nextcloud') }}"
+        - name: NEXTCLOUD_ADMIN_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: nextcloud-web-secret
+              key: password
+        - name: SQLITE_DATABASE
+          value: "db"
+        - name: NEXTCLOUD_TRUSTED_DOMAINS
+          value: "{{ nc_trusted_domains }}"
+      volumes:
+      - name: nextcloud-data
+        persistentVolumeClaim:
+          claimName: nextcloud-data
+        #emptyDir: {}
