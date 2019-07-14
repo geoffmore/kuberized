@@ -1,0 +1,91 @@
+apiVersion: v1
+items:
+- apiVersion: v1
+  kind: Service
+  metadata:
+    name: "terraria"
+  spec:
+    selector:
+      app: "terraria"
+    ports:
+    - protocol: TCP
+      port: 7777
+      targetPort: terraria
+    type: NodePort
+- apiVersion: apps/v1
+  kind: Deployment
+  metadata:
+    labels:
+      app: "terraria"
+    name: "terraria"
+  spec:
+    replicas: 1
+    selector:
+      matchLabels:
+        app: "terraria"
+    template:
+      metadata:
+        labels:
+          app: "terraria"
+      spec:
+        containers:
+        - name: "terraria"
+          # Change the image to your repository path, or build your own
+          # Just uncommenting the line below will pull an image I don't own
+          #image: terraria:1353
+          imagePullPolicy: IfNotPresent
+          env: 
+          #PLAYER_COUNT -maxplayers
+          #SERVER_PORT -port
+          #SERVER_PASS -pass
+          #WORLD_FILE -world
+          #AUTOCREATE_SIZE -autocreate
+          #BAN_LIST -banlist
+          #WORLD_NAME -worldname
+          # Comment out SERVER_PASS to start a server with no password
+            - name: SERVER_PASS
+              valueFrom:
+                secretKeyRef:
+                  name: terraria-secrets
+                  key: password
+          #command: [ "./entrypoint.sh" ]
+          # ~ 750MiB idle mem
+          # As a result of informal tests against 3 clusters, I determined the
+          # following for terraria resource usage:
+          # idle mem is 775-975MB
+          # idle cpu is 50-300m
+          # there is a cpu spike of up to 1800m
+          # there is no memory spike
+          stdin: true
+          tty: true
+          ports:
+          - name: terraria
+            containerPort: 7777
+            protocol: TCP
+          volumeMounts:
+          - name: world-data
+            mountPath: /app/server/Worlds
+          - name: config-data
+            mountPath: /app/server/init
+            readOnly: true
+          # It would be nice for entrypoint.sh to include support for lifecycle
+          # hooks. Not exactly sure how I would execute commands on the console
+        volumes:
+        # EmptyDir for world
+        - name: world-data
+          emptyDir: {}
+        #- name: world-data
+        #  persistentVolumeClaim:
+        #    claimName: yourWorldClaimHere
+        - name: config-data
+          configMap:
+            name: terraria-config
+        #imagePullSecrets:
+        #- name: yourRegistrySecretsHere
+        # Liveness/Readiness based on serving port
+    strategy:
+      type: "Recreate"
+kind: List
+metadata:
+  resourceVersion: ""
+  selfLink: ""
