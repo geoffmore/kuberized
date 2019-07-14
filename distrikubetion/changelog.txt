@@ -1,0 +1,5 @@
+11/18/18
+Initial Commit
+Added a DaemonSet that selects based on kubernetes.io/role=infra
+Added a CM to share configuration between pods
+Added a ClusterIP to serve local images to the cluster

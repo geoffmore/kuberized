@@ -1,0 +1,75 @@
+apiVersion: v1
+items:
+- apiVersion: v1
+  kind: Service
+  apiVersion: v1
+  metadata:
+    name: "distribution"
+    namespace: "registry"
+  spec:
+    selector:
+      app: "registry"
+    ports:
+    - protocol: TCP
+      port: 5000
+      targetPort: registry
+    type: ClusterIP
+- apiVersion: apps/v1
+  # https://docs.docker.com/registry/deploying
+  # This should be a daemonSet that lives on select(infra) nodes
+  #kind: Deployment
+  kind: DaemonSet
+  metadata:
+    name: "docker-registry"
+  spec:
+    selector:
+      matchLabels:
+        app: "registry"
+    template:
+      metadata:
+        labels:
+          app: "registry"
+      spec:
+        containers:
+        - name: "registry"
+          #image: "docker.io/registry:2"
+          image: registry.hub.docker.com/library/registry:2.6.2
+          ports:
+          - containerPort: 5000
+            name: "registry"
+          volumeMounts:
+          - name: "registry-data"
+            mountPath: "/var/lib/registry"
+          - name: "registry-config"
+            mountPath: "/etc/docker/registry"
+          imagePullPolicy: IfNotPresent
+          # Health/Liveness here
+        volumes: 
+        # This should probably use hostPath
+        - name: "registry-data"
+        # Choose hostPath, PVC, emptyDir
+          #hostPath:
+          #  path: "/var/lib/registry"
+          #  type: DirectoryOrCreate
+          #persistentVolumeClaim:
+          #  claimName: "registry-claim"
+          emptyDir: {}
+        - name: "registry-config"
+          configMap:
+            name: distribution-config
+            items:
+            - key: config.yml
+              path: config.yml
+        affinity:
+          nodeAffinity:
+            requiredDuringSchedulingIgnoredDuringExecution:
+              nodeSelectorTerms: 
+              - matchExpressions:
+                - key:  kubernetes.io/role
+                  operator: In
+                  values:
+                  - "infra"
+kind: List
+metadata:
+  resourceVersion: ""
+  selfLink: ""
