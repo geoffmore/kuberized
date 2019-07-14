@@ -1,0 +1,71 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "minecraft-java.fullname" . }}
+  labels:
+    app: {{ .Chart.Name }}
+    chart: {{ .Chart.Name }}
+    release: {{ .Release.Name }}
+    heritage: {{ .Release.Service }}
+spec:
+  replicas: {{ .Values.replicaCount }}
+  selector:
+    matchLabels:
+      app: {{ .Chart.Name }}
+      chart: {{ .Chart.Name }}
+      release: {{ .Release.Name }}
+      heritage: {{ .Release.Service }}
+  template:
+    metadata:
+      labels:
+        app: {{ .Chart.Name }}
+        chart: {{ .Chart.Name }}
+        release: {{ .Release.Name }}
+        heritage: {{ .Release.Service }}
+    spec:
+      containers:
+      - name: {{ .Chart.Name }}
+        command: ["java", "-jar", "/app/server.jar", "nogui"]
+        image: {{ .Values.image.repository }}:{{ .Values.image.tag }}
+        imagePullPolicy: {{ .Values.image.pullPolicy }}
+        ports:
+        - containerPort: 25565
+          name: minecraft-svc
+        volumeMounts:
+        - name: log-dir
+          mountPath: /app/logs
+          readOnly: false
+        - name : world-dir
+          mountPath: /app/world
+          readOnly: false
+        - name: server-config
+          mountPath: /opt/server.properties
+          readOnly: true
+          subPath: server-properties
+        # Liveness/Readiness based on serving port
+        readinessProbe:
+          tcpSocket:
+            port: minecraft-svc
+          initialDelaySeconds: 60
+          periodSeconds: 10
+          timeoutSeconds: 1
+          successThreshold: 1
+          failureThreshold: 6
+        livenessProbe:
+          tcpSocket:
+            port: minecraft-svc
+          initialDelaySeconds: 60
+          periodSeconds: 10
+          timeoutSeconds: 1
+          successThreshold: 1
+          failureThreshold: 2
+      volumes:
+      # One day, I will have RamDisks, not today, though
+      - name: log-dir
+        {{ .Values.storage.logs.claimType }}: {{ .Values.storage.logs.claimName }}
+      - name: world-dir
+        {{ .Values.storage.world.claimType }}: {{ .Values.storage.world.claimName }}
+        #  medium: "Memory"
+      - name: server-config
+        configMap:
+          name: {{ .Release.Name }}-config

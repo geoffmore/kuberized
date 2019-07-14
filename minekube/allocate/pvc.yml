@@ -1,0 +1,25 @@
+apiVersion: v1
+items:
+- kind: PersistentVolumeClaim
+  apiVersion: v1
+  metadata:
+    name: yourWorldClaimHere
+  spec:
+    accessModes:
+    - ReadWriteOnce
+    resources:
+      requests:
+        storage: 5Gi
+    storageClassName: yourStorageClassHere
+- kind: PersistentVolumeClaim
+  apiVersion: v1
+  metadata:
+    name: yourLogClaimHere
+  spec:
+    accessModes:
+    - ReadWriteOnce
+    resources:
+      requests:
+        storage: 2Gi
+    storageClassName: yourStorageClassHere
+kind: List
