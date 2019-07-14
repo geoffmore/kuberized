@@ -1,6 +1,10 @@
 # kuberized
 Kuberize: the configuration of an application such that it can be deployed in kubernetes.
 ## Repo Contents:
-* elk8s - Elastic Stack
+* distrikubetion (unfinished) - Docker Distribution to serve images to to the cluster
+* factorio - factorio
+* mediawiki - MediaWiki
 * minekube - Minecraft Bedrock and Java Editions
-* distrikubetion - Docker Distribution to serve images to to the cluster
+* nextkube - NextCloud
+* readthedocs (unfinished) - ReadTheDocs
+* terraria - Terraria
