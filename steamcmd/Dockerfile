@@ -2,7 +2,8 @@
 # This container provides a base Ubuntu 26.04 environment with SteamCMD installed
 # Designed for interactive use and as a base for game server containers
 
-FROM ubuntu:26.04@sha256:12aa2ae97b9b295d28962e83cb36cb478f3afbdda68196e5fd62e68bde3a67d5
+# Note - using trixie-slim versus ubuntu for a ~38% size reduction
+FROM debian:trixie-slim@sha256:4bcb9db66237237d03b55b969271728dd3d955eaaa254b9db8a3db94550b1885
 
 # Avoid interactive prompts during package installation
 ENV DEBIAN_FRONTEND=noninteractive
@@ -13,24 +14,19 @@ RUN dpkg --add-architecture i386
 # Install dependencies
 # - lib32gcc-s1, lib32stdc++6: 32-bit runtime libraries for SteamCMD
 # - ca-certificates, curl: For downloading SteamCMD
+# - locales: resolves locale issues
 # - software-properties-common: For managing repositories
+# TODO - figure out if software-properties-common is needed from ubuntu image
+
 RUN apt-get update && apt-get install -y \
     lib32gcc-s1 \
     lib32stdc++6 \
     ca-certificates \
     curl \
-    software-properties-common \
-    tar
+    tar \
+    locales
 
-# steamcmd stuff
-# https://stackoverflow.com/questions/66859800/
-# https://steamcommunity.com/app/221410/discussions/2/6717729343879417224/
-#RUN add-apt-repository multiverse && apt-get -y update # steamcmd from multiverse doesn't appear to work
-
-RUN apt-get install -y locales
-
-#RUN apt-get install -y steamcmd
-
+# See https://stackoverflow.com/questions/66859800/
 RUN locale-gen en_US.UTF-8
 
 # Clean apt after installs
@@ -44,14 +40,12 @@ RUN useradd -m -s /bin/bash steam
 USER steam
 WORKDIR /home/steam
 
-# Download and install SteamCMD
+# Download and install SteamCMD w/ QoL symlink
 # Following the official guide: https://developer.valvesoftware.com/wiki/SteamCMD
 RUN mkdir -p /home/steam/steamcmd && \
     cd /home/steam/steamcmd && \
-    curl -sqL "https://steamcdn-a.akamaihd.net/client/installer/steamcmd_linux.tar.gz" | tar zxvf -
-
-# QoL: symlink steamcmd.sh to steamcmd
-RUN ln -s /home/steam/steamcmd/steamcmd.sh /home/steam/steamcmd/steamcmd
+    curl -sqL "https://steamcdn-a.akamaihd.net/client/installer/steamcmd_linux.tar.gz" | tar zxvf - && \
+    ln -s /home/steam/steamcmd/steamcmd.sh /home/steam/steamcmd/steamcmd
 
 # Add steamcmd to PATH for convenience
 ENV PATH="/home/steam/steamcmd:${PATH}"
