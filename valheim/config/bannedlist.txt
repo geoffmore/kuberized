@@ -1,0 +1,1 @@
+// List banned players ID  ONE per line
