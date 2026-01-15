@@ -1,0 +1,2 @@
+# NOTE - if anything is defined
+// List permitted players ID ONE per line
